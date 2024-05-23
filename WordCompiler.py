@@ -1,6 +1,7 @@
 from spellchecker import SpellChecker
 from readchar import readchar
 from os import system
+from itertools import permutations
 
 
 class WordCompiler:
@@ -12,32 +13,52 @@ class WordCompiler:
     def ClearConsole(self):
         system('cls')
 
+    def RunContinue(self):
+        print('\nВведите любую букву для продолжения или пробел для завершения: ', end='')
+        return readchar()
+
     def MainLoop(self):
         UserInput = ''
 
         while UserInput != ' ':
-            Symbols = input("Введите буквы через пробел")
-            NumberSymbolsInWord = int(input("Введите кол-во букв в слове"))
+            self.ClearConsole()
 
-            if Symbols.isalpha():
-                LenSymbols = len(Symbols)
-                Symbols = Symbols.split()
+            ListOfSymbols = input("\nВведите буквы: ")
+            NumberSymbolsInWord = input("\nВведите кол-во букв в слове: ")
 
-                String = ''
+            try:
+                NumberSymbolsInWord = int(NumberSymbolsInWord)
 
-                for index, symbol1 in enumerate(Symbols):
-                    String += symbol1
+                if NumberSymbolsInWord > len(ListOfSymbols):
+                    print(f"\n{NumberSymbolsInWord} > кол-ва букв")
 
-                    for number in range(NumberSymbolsInWord):
-                        for symbol2 in Symbols[index+1: -1-number]:
-                            String += symbol2
+                    UserInput = self.RunContinue()
 
-                print(String)
+                    continue
+
+            except ValueError:
+                print(f"\n{NumberSymbolsInWord} - не число")
+                continue
+
+            if ListOfSymbols.isalpha():
+
+                self.PrintWord(permutations(ListOfSymbols, NumberSymbolsInWord))
+
+                UserInput = self.RunContinue()
 
             else:
-                print('\n\tКриво ввёл')
-                UserInput = readchar()
+                print('\nКриво ввёл')
+
+                UserInput = self.RunContinue()
+
+    def PrintWord(self, List):
+        print()
+        for Word in List:
+            Word = ''.join(Word)
+
+            if Word == self.SpellChecker.correction(Word):
+                print(Word)
+        print()
 
 
-if __name__ == "__name__":
-    WC = WordCompiler()
+WC = WordCompiler()
