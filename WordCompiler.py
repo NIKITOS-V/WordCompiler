@@ -1,17 +1,26 @@
-from spellchecker import SpellChecker
 from readchar import readchar
-from os import system
+import os
 from itertools import permutations
+import inspect
 
 
 class WordCompiler:
     def __init__(self):
-        self.SpellChecker = SpellChecker(language='ru')
+        self.RuDict = ''
 
+        self.OpenFile()
         self.MainLoop()
 
     def ClearConsole(self):
-        system('cls')
+        os.system('cls')
+
+    def OpenFile(self):
+        Dir = os.path.dirname(os.path.abspath(
+  inspect.getfile(inspect.currentframe())))
+        print(Dir)
+
+        with open(f'{Dir}\\russian.txt', 'r', encoding='windows-1251', ) as File:
+            self.RuDict = list(filter(None, File.read().split('\n')))
 
     def RunContinue(self):
         print('\nВведите любую букву для продолжения или пробел для завершения: ', end='')
@@ -56,7 +65,7 @@ class WordCompiler:
         for Word in List:
             Word = ''.join(Word)
 
-            if Word == self.SpellChecker.correction(Word):
+            if Word in self.RuDict:
                 print(Word)
         print()
 
