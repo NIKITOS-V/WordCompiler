@@ -2,25 +2,38 @@ from readchar import readchar
 import os
 from itertools import permutations
 import inspect
+import ctypes
 
 
 class WordCompiler:
     def __init__(self):
-        self.RuDict = ''
+        self.RuDict = None
+        self.WordSearchEngine = None
+        self.LenRuDict = None
+        self.Dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
+        self.LibraryPreparation()
         self.OpenFile()
         self.MainLoop()
+
+    def LibraryPreparation(self):
+        self.WordSearchEngine = ctypes.WinDLL(f"{self.Dir}\\WordSearchEngine.dll").For
+        self.WordSearchEngine.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.c_size_t]
+        self.WordSearchEngine.restypes = ctypes.c_int
 
     def ClearConsole(self):
         os.system('cls')
 
     def OpenFile(self):
-        Dir = os.path.dirname(os.path.abspath(
-  inspect.getfile(inspect.currentframe())))
-        print(Dir)
+        with open(f'{self.Dir}\\russian.txt', 'r', encoding='windows-1251', ) as File:
+            RuDict = list(map(lambda word: hash(word), File.read().split('\n')[0:-1]))
 
-        with open(f'{Dir}\\russian.txt', 'r', encoding='windows-1251', ) as File:
-            self.RuDict = list(filter(None, File.read().split('\n')))
+        self.RuDict = (ctypes.c_int * len(RuDict))()
+
+        for Index, Hash in enumerate(RuDict):
+            self.RuDict[Index] = Hash
+
+        self.LenRuDict = len(self.RuDict)
 
     def RunContinue(self):
         print('\nВведите любую букву для продолжения или пробел для завершения: ', end='')
@@ -62,11 +75,13 @@ class WordCompiler:
 
     def PrintWord(self, List):
         print()
+
         for Word in List:
             Word = ''.join(Word)
 
-            if Word in self.RuDict:
+            if self.WordSearchEngine(hash(Word), self.RuDict, self.LenRuDict):
                 print(Word)
+
         print()
 
 
