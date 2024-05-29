@@ -2,38 +2,25 @@ from readchar import readchar
 import os
 from itertools import permutations
 import inspect
-import ctypes
+import hashlib
+import pickle
 
 
 class WordCompiler:
     def __init__(self):
         self.RuDict = None
-        self.WordSearchEngine = None
-        self.LenRuDict = None
-        self.Dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
-        self.LibraryPreparation()
         self.OpenFile()
         self.MainLoop()
-
-    def LibraryPreparation(self):
-        self.WordSearchEngine = ctypes.WinDLL(f"{self.Dir}\\WordSearchEngine.dll").For
-        self.WordSearchEngine.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.c_size_t]
-        self.WordSearchEngine.restypes = ctypes.c_int
 
     def ClearConsole(self):
         os.system('cls')
 
     def OpenFile(self):
-        with open(f'{self.Dir}\\russian.txt', 'r', encoding='windows-1251', ) as File:
-            RuDict = list(map(lambda word: hash(word), File.read().split('\n')[0:-1]))
+        Dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
-        self.RuDict = (ctypes.c_int * len(RuDict))()
-
-        for Index, Hash in enumerate(RuDict):
-            self.RuDict[Index] = Hash
-
-        self.LenRuDict = len(self.RuDict)
+        with open(f'{Dir}\\russian.bin', 'rb') as File:
+            self.RuDict = pickle.load(File)
 
     def RunContinue(self):
         print('\nВведите любую букву для продолжения или пробел для завершения: ', end='')
@@ -64,7 +51,7 @@ class WordCompiler:
 
             if ListOfSymbols.isalpha():
 
-                self.PrintWord(permutations(ListOfSymbols, NumberSymbolsInWord))
+                self.PrintWord(set(permutations(ListOfSymbols, NumberSymbolsInWord)))
 
                 UserInput = self.RunContinue()
 
@@ -77,10 +64,12 @@ class WordCompiler:
         print()
 
         for Word in List:
-            Word = ''.join(Word)
 
-            if self.WordSearchEngine(hash(Word), self.RuDict, self.LenRuDict):
-                print(Word)
+            try:
+                print(self.RuDict[hashlib.sha256(''.join(Word).encode()).hexdigest()])
+
+            except KeyError:
+                pass
 
         print()
 
