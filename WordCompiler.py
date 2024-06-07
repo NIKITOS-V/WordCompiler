@@ -8,65 +8,65 @@ import pickle
 
 class WordCompiler:
     def __init__(self):
-        self.RuDict = None
+        self.Russian_dictionary = None
 
         self.OpenFile()
-        self.MainLoop()
+        self.mainloop()
 
-    def ClearConsole(self):
+    def clear_console(self):
         os.system('cls')
 
     def OpenFile(self):
-        Dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
-        with open(f'{Dir}\\russian.bin', 'rb') as File:
-            self.RuDict = pickle.load(File)
+        with open(f'{dir}\\russian.bin', 'rb') as file:
+            self.Russian_dictionary = pickle.load(file)
 
-    def RunContinue(self):
+    def continue_working(self):
         print('\nВведите любую букву для продолжения или пробел для завершения: ', end='')
         return readchar()
 
-    def MainLoop(self):
-        UserInput = ''
+    def mainloop(self):
+        user_input = ''
 
-        while UserInput != ' ':
-            self.ClearConsole()
+        while user_input != ' ':
+            self.clear_console()
 
-            ListOfSymbols = input("\nВведите буквы: ")
-            NumberSymbolsInWord = input("\nВведите кол-во букв в слове: ")
+            list_of_characters = input("\nВведите буквы: ")
+            number_characters_in_word = input("\nВведите кол-во букв в слове: ")
 
             try:
-                NumberSymbolsInWord = int(NumberSymbolsInWord)
+                number_characters_in_word = int(number_characters_in_word)
 
-                if NumberSymbolsInWord > len(ListOfSymbols):
-                    print(f"\n{NumberSymbolsInWord} > кол-ва букв")
+                if number_characters_in_word > len(list_of_characters):
+                    print(f"\n{number_characters_in_word} > кол-ва букв")
 
-                    UserInput = self.RunContinue()
+                    user_input = self.continue_working()
 
                     continue
 
             except ValueError:
-                print(f"\n{NumberSymbolsInWord} - не число")
+                print(f"\n{number_characters_in_word} - не число")
                 continue
 
-            if ListOfSymbols.isalpha():
+            if list_of_characters.isalpha():
 
-                self.PrintWord(set(permutations(ListOfSymbols, NumberSymbolsInWord)))
+                self.print_word(set(permutations(list_of_characters, number_characters_in_word)))
 
-                UserInput = self.RunContinue()
+                user_input = self.continue_working()
 
             else:
                 print('\nКриво ввёл')
 
-                UserInput = self.RunContinue()
+                user_input = self.continue_working()
 
-    def PrintWord(self, List):
+    def print_word(self, List):
         print()
 
-        for Word in List:
+        for word in List:
 
             try:
-                print(self.RuDict[hashlib.sha256(''.join(Word).encode()).hexdigest()])
+                print(self.Russian_dictionary[hashlib.sha256(''.join(word).encode()).hexdigest()])
 
             except KeyError:
                 pass
@@ -74,4 +74,4 @@ class WordCompiler:
         print()
 
 
-WC = WordCompiler()
+WordCompiler()
